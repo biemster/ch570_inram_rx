@@ -1,4 +1,4 @@
-all : runfromram
+all : clean runfromram
 
 TARGET:=rx
 TARGET_MCU:=CH570
@@ -10,15 +10,9 @@ include ../ch32fun/ch32fun/ch32fun.mk
 
 flash : runfromram
 
-clean : cv_clean
-
 runfromram : $(TARGET).bin
-	$(MINICHLINK)/minichlink -kw $(TARGET).bin 0x20000000
-	$(MINICHLINK)/minichlink -ks 0x18 0 # Disable auto execution
-	$(MINICHLINK)/minichlink -ks 0x04 0x20000000 # Write DATA0 = RAM start
-	$(MINICHLINK)/minichlink -ks 0x17 0x002307b1 # Write DATA0 to DPC
-	$(MINICHLINK)/minichlink -ks 0x10 0x40000001 -T # Resume Request
+	# Halt, Reboot, Disable Autoexec, Write RAM, DATA0 = RAM Start, Write DATA0 to DPC, Resume
+	$(MINICHLINK)/minichlink -ks 0x10 0x80000001 -s 0x10 0x80000003 -s 0x18 0 -w $(TARGET).bin 0x20000000 -s 0x04 0x20000000 -s 0x17 0x002307b1 -s 0x10 0x40000001 -T # Resume Request
 
-flash : cv_flash
 clean : cv_clean
 
