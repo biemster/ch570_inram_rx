@@ -24,13 +24,11 @@ int main()
 	funPinMode( LED, GPIO_CFGLR_OUT_2Mhz_PP );
 
 	BLECoreInit(LL_TX_POWER_0_DBM);
-	__attribute__((aligned(4))) uint8_t buf[255];
+	uint8_t frame_info[] = {0xff, 0x10}; // PDU, len
 
 	blink(5);
 	printf("~ ch570 rx !\n");
 
-	while(1) {
-		Frame_RX(buf, 37);
-		blink(1);
-	}
+	Frame_RX(frame_info, 37);
+	while(1);
 }

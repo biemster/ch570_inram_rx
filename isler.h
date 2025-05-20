@@ -167,6 +167,16 @@ __attribute__((interrupt))
 void LLE_IRQHandler() {
 	LL->STATUS &= LL->INT_EN;
 	BB->CTRL_TX = (BB->CTRL_TX & 0xfffffffc) | 1;
+
+	printf("RSSI: %d len: %d, MAC:", ((uint8_t*)LLE_BUF)[0], ((uint8_t*)LLE_BUF)[1]);
+	for(int i = 7; i > 2; i--) {
+		printf("%02x:", ((uint8_t*)LLE_BUF)[i]);
+	}
+	printf("%02x data:", ((uint8_t*)LLE_BUF)[2]);
+	for(int i = 8; i < 16; i++) {
+		printf("%02x ", ((uint8_t*)LLE_BUF)[i]);
+	}
+	printf("... \n");
 }
 
 void DevInit(uint8_t TxPower) {
@@ -411,7 +421,7 @@ void Frame_TX(uint8_t adv[], size_t len, uint8_t channel) {
 	LL->LL0 |= 0x08;
 }
 
-void Frame_RX(uint8_t adv[], uint8_t channel) {
+void Frame_RX(uint8_t frame_info[], uint8_t channel) {
 	if(LL->LL0 & 3) {
 		LL->CTRL_MOD &= 0xfffff8ff;
 		LL->LL0 |= 0x08;
@@ -430,7 +440,6 @@ void Frame_RX(uint8_t adv[], uint8_t channel) {
 
 	RF->RF20 = (RF->RF20 & 0xffffffe0) | (tuneFilter & 0x1f);
 	BB->BB5 = (BB->BB5 & 0xffffffc0) | 0xb;
-	BB->BB6 = 0x78; // this is probably wrong
 	BB->BB7 = (BB->BB7 & 0xfffffc00) | 0x9c;
 
 	BB->ACCESSADDRESS1 = 0x8E89BED6; // access address
@@ -441,12 +450,7 @@ void Frame_RX(uint8_t adv[], uint8_t channel) {
 	BB->CRCPOLY2 = (BB->CRCPOLY2 & 0xff000000) | 0x80032d;
 
 	LL->LL1 = (LL->LL1 & 0xfffffffe) | 1; // Unknown why this needs to happen.
-	LL->FRAME_BUF = (uint32_t)adv;
+	LL->FRAME_BUF = (uint32_t)frame_info;
 
 	LL->LL0 = 1; // Not sure what this does, but on TX it's 2
-
-	while(LL->TMR);
-	DevSetMode(0);
-	LL->CTRL_MOD &= 0xfffff8ff;
-	LL->LL0 |= 0x08;
 }
