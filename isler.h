@@ -160,6 +160,7 @@ uint8_t channel_map[] = {1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,2
 #define CO_MID (uint8_t)(RF->TXTUNE_CTRL & ~0xffffffc0)
 #define GA_MID (uint8_t)((RF->TXTUNE_CTRL & ~0x80ffffff) >> 24)
 
+void DevSetMode(uint16_t mode);
 __attribute__((aligned(4))) uint32_t LLE_BUF[0x10c];
 volatile uint32_t tuneFilter;
 volatile uint32_t rx_ready;
@@ -168,6 +169,9 @@ __attribute__((interrupt))
 void LLE_IRQHandler() {
 	LL->STATUS &= LL->INT_EN;
 	BB->CTRL_TX = (BB->CTRL_TX & 0xfffffffc) | 1;
+	DevSetMode(0);
+	LL->CTRL_MOD &= 0xfffff8ff;
+	LL->LL0 |= 0x08;
 	rx_ready = 1;
 }
 
