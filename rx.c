@@ -34,14 +34,15 @@ int main()
 		while(!rx_ready);
 
 		blink(1);
-		printf("RSSI:%d len:%d MAC:", ((uint8_t*)LLE_BUF)[0], ((uint8_t*)LLE_BUF)[1]);
+		uint8_t len = ((uint8_t*)LLE_BUF)[1];
+		printf("RSSI:%d len:%d MAC:", ((uint8_t*)LLE_BUF)[0], len);
 		for(int i = 7; i > 2; i--) {
 			printf("%02x:", ((uint8_t*)LLE_BUF)[i]);
 		}
 		printf("%02x data:", ((uint8_t*)LLE_BUF)[2]);
-		for(int i = 8; i < 16; i++) {
+		for(int i = 8; i < len +2; i++) {
 			printf("%02x ", ((uint8_t*)LLE_BUF)[i]);
 		}
-		printf("... \n");
+		printf("\n");
 	}
 }
