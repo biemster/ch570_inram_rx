@@ -23,7 +23,7 @@ int main()
 	funGpioInitAll();
 	funPinMode( LED, GPIO_CFGLR_OUT_2Mhz_PP );
 
-	BLECoreInit(LL_TX_POWER_0_DBM);
+	RFCoreInit(LL_TX_POWER_0_DBM);
 	uint8_t frame_info[] = {0xff, 0x10}; // PDU, len
 
 	blink(5);
