@@ -161,22 +161,14 @@ uint8_t channel_map[] = {1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,2
 #define GA_MID (uint8_t)((RF->TXTUNE_CTRL & ~0x80ffffff) >> 24)
 
 __attribute__((aligned(4))) uint32_t LLE_BUF[0x10c];
-uint32_t tuneFilter;
+volatile uint32_t tuneFilter;
+volatile uint32_t rx_ready;
 
 __attribute__((interrupt))
 void LLE_IRQHandler() {
 	LL->STATUS &= LL->INT_EN;
 	BB->CTRL_TX = (BB->CTRL_TX & 0xfffffffc) | 1;
-
-	printf("RSSI: %d len: %d, MAC:", ((uint8_t*)LLE_BUF)[0], ((uint8_t*)LLE_BUF)[1]);
-	for(int i = 7; i > 2; i--) {
-		printf("%02x:", ((uint8_t*)LLE_BUF)[i]);
-	}
-	printf("%02x data:", ((uint8_t*)LLE_BUF)[2]);
-	for(int i = 8; i < 16; i++) {
-		printf("%02x ", ((uint8_t*)LLE_BUF)[i]);
-	}
-	printf("... \n");
+	rx_ready = 1;
 }
 
 void DevInit(uint8_t TxPower) {
@@ -453,4 +445,5 @@ void Frame_RX(uint8_t frame_info[], uint8_t channel) {
 	LL->FRAME_BUF = (uint32_t)frame_info;
 
 	LL->LL0 = 1; // Not sure what this does, but on TX it's 2
+	rx_ready = 0;
 }

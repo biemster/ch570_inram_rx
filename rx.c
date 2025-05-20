@@ -29,6 +29,19 @@ int main()
 	blink(5);
 	printf("~ ch570 rx !\n");
 
-	Frame_RX(frame_info, 37);
-	while(1);
+	while(1) {
+		Frame_RX(frame_info, 37);
+		while(!rx_ready);
+
+		blink(1);
+		printf("RSSI:%d len:%d MAC:", ((uint8_t*)LLE_BUF)[0], ((uint8_t*)LLE_BUF)[1]);
+		for(int i = 7; i > 2; i--) {
+			printf("%02x:", ((uint8_t*)LLE_BUF)[i]);
+		}
+		printf("%02x data:", ((uint8_t*)LLE_BUF)[2]);
+		for(int i = 8; i < 16; i++) {
+			printf("%02x ", ((uint8_t*)LLE_BUF)[i]);
+		}
+		printf("... \n");
+	}
 }
